@@ -4,6 +4,13 @@ const { Client } = require('whatsapp-web.js');
 const client = new Client();
 let visaCategory = '';
 
+//IMPORTANT CREDENTIALS 
+const EMAIL = 'moinsaz2000@gmail.com';
+const PASSWORD = '@Asdfghjkl786@';
+const WHATSAPP_RECIPIENT = '919920791683';
+const DATE_FETCHING_TIME = 120000;
+
+
 (async () => {
 
   // ----- connecting whatsapp client ------
@@ -38,11 +45,11 @@ let visaCategory = '';
   // -----------Logging in----------------
   //Setting Email
   await page.waitForSelector('input[type=text]')
-  await page.type('input[type=text]', 'moinsaz2000@gmail.com')
+  await page.type('input[type=text]',EMAIL)
 
   //Setting Password
   await page.waitForSelector('input[type=password]')
-  await page.type('input[type=password]', '@Asdfghjkl786@')
+  await page.type('input[type=password]',PASSWORD)
 
 
   // Waiting for the page to get loaded
@@ -108,15 +115,14 @@ let visaCategory = '';
     // ------------- Getting earliest date ----------
     await page.waitForSelector(`.alert`);
     const alert = await page.$$(`.alert`)
-    const finalText = await alert[0].evaluate((e) => e.innerText);
-    console.log("🚀 ~ file: index.js ~ line 83 ~ finalText", finalText)
+    const earliestDate = await alert[0].evaluate((e) => e.innerText);
+    console.log("🚀 ~ file: index.js ~ line 83 ~ earliestDate", earliestDate)
     // ------------- earliest date ended ----------
 
 
     // --------- sending whatsapp message --------
-    const number = "+919167201957";
-    const text = finalText;
-    const chatId = number.substring(1) + "@c.us";
+    const text = `Category - ${visaCategory}\nDate - ${earliestDate}`;
+    const chatId = WHATSAPP_RECIPIENT.substring(1) + "@c.us";
     client.sendMessage(chatId, text);
     // ---------- whatsapp message ended --------
 
@@ -142,19 +148,18 @@ let visaCategory = '';
       // ------------- Getting earliest date ----------
       await page.waitForSelector(`.alert`);
       const alert = await page.$$(`.alert`)
-      const finalText = await alert[0].evaluate((e) => e.innerText);
-      console.log("🚀 ~ file: index.js ~ line 83 ~ finalText", finalText)
+      const earliestDate = await alert[0].evaluate((e) => e.innerText);
+      console.log("🚀 ~ file: index.js ~ line 83 ~ earliestDate", earliestDate)
       // ------------- earliest date ended ----------
 
 
       // --------- sending whatsapp message --------
-      const number = "+917021420131";
-      const text = `Category - ${visaCategory}\n  Date - ${finalText}`;
-      const chatId = number.substring(1) + "@c.us";
+      const text = `Category - ${visaCategory}\nDate - ${earliestDate}`;
+      const chatId = WHATSAPP_RECIPIENT.substring(1) + "@c.us";
       await client.sendMessage(chatId, text);
       // ---------- whatsapp message ended --------
     
-    }, 300000);
+    }, DATE_FETCHING_TIME);
 
 })();
 
