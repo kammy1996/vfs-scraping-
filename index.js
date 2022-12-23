@@ -1,7 +1,9 @@
 const puppeteer = require(`puppeteer`);
 const qrcode = require('qrcode-terminal');
-const { Client } = require('whatsapp-web.js');
-const client = new Client();
+const { Client, LocalAuth } = require('whatsapp-web.js');
+const client = new Client({
+  authStrategy: new LocalAuth()
+});
 let visaCategory = '';
 
 //IMPORTANT CREDENTIALS 
@@ -24,7 +26,7 @@ const DATE_FETCHING_TIME = 120000;
 
   await client.initialize();
 
-  // ----- connecting whatsapp client ------
+  // ----- connecting whatsapp client ended ------
 
 
   // -----------Creating browser and page ------------
