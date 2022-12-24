@@ -1,20 +1,18 @@
+// This file is applicable for Schengen countries only which has a URL - visa.vfsglobal.com
+
 const puppeteer = require(`puppeteer`);
 const qrcode = require('qrcode-terminal');
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const client = new Client({
   authStrategy: new LocalAuth()
 });
+
+//Country and login Details 
+const COUNTRY = require(`./models/countries`);
+const LOGIN_DETAILS = require(`./models/login-details`);
 let visaCategory = '';
 
-//IMPORTANT CREDENTIALS 
-const EMAIL = 'moinsaz2000@gmail.com';
-const PASSWORD = '@Asdfghjkl786@';
-const WHATSAPP_RECIPIENT = '919920791683';
-const DATE_FETCHING_TIME = 120000;
-
-
 (async () => {
-
   // ----- connecting whatsapp client ------
   await client.on('qr', qr => {
       qrcode.generate(qr, {small: true});
@@ -39,7 +37,7 @@ const DATE_FETCHING_TIME = 120000;
   page.setDefaultNavigationTimeout(1000000000); 
 
   // Login site 
-  await page.goto('https://visa.vfsglobal.com/ind/en/deu/login');
+  await page.goto(COUNTRY.GERMANY.VFS_URL);
 
   // -----------Creating browser and page ended ------------
 
@@ -47,11 +45,11 @@ const DATE_FETCHING_TIME = 120000;
   // -----------Logging in----------------
   //Setting Email
   await page.waitForSelector('input[type=text]')
-  await page.type('input[type=text]',EMAIL)
+  await page.type('input[type=text]',LOGIN_DETAILS.EMAIL)
 
   //Setting Password
   await page.waitForSelector('input[type=password]')
-  await page.type('input[type=password]',PASSWORD)
+  await page.type('input[type=password]',LOGIN_DETAILS.PASSWORD)
 
 
   // Waiting for the page to get loaded
@@ -123,45 +121,62 @@ const DATE_FETCHING_TIME = 120000;
 
 
     // --------- sending whatsapp message --------
-    const text = `Category - ${visaCategory}\nDate - ${earliestDate}`;
-    const chatId = WHATSAPP_RECIPIENT.substring(1) + "@c.us";
+    const text = `${COUNTRY.GERMANY.VISA_COUNTRY} - ${visaCategory}\n${earliestDate}`;
+    const chatId = LOGIN_DETAILS.WHATSAPP_RECIPIENT.substring(1) + "@c.us";
     client.sendMessage(chatId, text);
     // ---------- whatsapp message ended --------
 
 
-    //This calles will happen every 5 mins
-    setInterval(async () => {
-      await page.waitForSelector(`form .mat-form-field`);
-      const selects = await page.$$(`.mat-select`)
-      await selects[2].evaluate(b => b.click());
-      await page.waitForTimeout(1000);
-      await page.waitForSelector(`#mat-select-4-panel`)
-      const options3 = await page.$$(`.mat-option`)
-      if(visaCategory == 'Business') { 
-        await options3[5].evaluate((b) => b.click());
-        visaCategory = 'Tourist';
+    //------------Checking session expiry dialog ------------
+    setInterval(async () => { 
+      const sessionDialog = await page.$$(`.mat-modal-delete-document`);
+      if(sessionDialog && sessionDialog.length > 0) { 
+        console.log(`session expiry dialog found`,)
+        const dialogButtons = await page.$$(`.mat-dialog-actions button`)
+        await dialogButtons[1].evaluate(b => b.click());
       } else { 
-        await options3[8].evaluate((b) => b.click());
-        visaCategory = 'Business';
+        return;
       }
-
-      await page.waitForTimeout(3000);
-
-      // ------------- Getting earliest date ----------
-      await page.waitForSelector(`.alert`);
-      const alert = await page.$$(`.alert`)
-      const earliestDate = await alert[0].evaluate((e) => e.innerText);
-      console.log("🚀 ~ file: index.js ~ line 83 ~ earliestDate", earliestDate)
-      // ------------- earliest date ended ----------
+    },LOGIN_DETAILS.SESSION_DIALOG_CHECK_TIME)
+    //-------------Session expiry dialog ended---------------
 
 
-      // --------- sending whatsapp message --------
-      const text = `Category - ${visaCategory}\nDate - ${earliestDate}`;
-      const chatId = WHATSAPP_RECIPIENT.substring(1) + "@c.us";
-      await client.sendMessage(chatId, text);
-      // ---------- whatsapp message ended --------
-    
-    }, DATE_FETCHING_TIME);
+
+    //-------------- Changing dropdown sub-category to get latest dates ------------
+    setInterval(async () => {
+        // Toggling selection between sub-category tourist and business.
+        await page.waitForSelector(`form .mat-form-field`);
+        const selects = await page.$$(`.mat-select`)
+        await selects[2].evaluate(b => b.click());
+        await page.waitForTimeout(1000);
+        await page.waitForSelector(`#mat-select-4-panel`)
+        const options3 = await page.$$(`.mat-option`)
+        if(visaCategory == 'Business') { 
+          await options3[5].evaluate((b) => b.click());
+          visaCategory = 'Tourist';
+        } else { 
+          await options3[8].evaluate((b) => b.click());
+          visaCategory = 'Business';
+        }
+
+        await page.waitForTimeout(3000);
+
+        // ------------- Getting earliest date ----------
+        await page.waitForSelector(`.alert`);
+        const alert = await page.$$(`.alert`)
+        const earliestDate = await alert[0].evaluate((e) => e.innerText);
+        console.log("🚀 ~ file: index.js ~ line 83 ~ earliestDate", earliestDate)
+        // ------------- earliest date ended ----------
+
+
+        // --------- sending whatsapp message --------
+        const text = `${COUNTRY.GERMANY.VISA_COUNTRY} - ${visaCategory}\n${earliestDate}`;
+        const chatId = LOGIN_DETAILS.WHATSAPP_RECIPIENT.substring(1) + "@c.us";
+        await client.sendMessage(chatId, text);
+        // ---------- whatsapp message ended --------
+    }, LOGIN_DETAILS.FETCHING_INTERVAL);
+
+    //-------------------Changing dates ended-------------------
 
 })();
 
