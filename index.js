@@ -41,6 +41,7 @@ let visaCategory = '';
 
   // -----------Creating browser and page ended ------------
 
+  await page.waitForTimeout(3000)
 
   // -----------Logging in----------------
   //Setting Email
