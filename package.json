@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "node index.js"
+    "germany": "node ./countries-script/germany.js",
+    "france": "node ./countries-script/france.js",
+    "italy": "node ./countries-script/italy.js",
+    "swiss": "node ./countries-script/swiss.js"
   },
   "author": "",
   "license": "ISC",

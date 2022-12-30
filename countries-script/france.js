@@ -7,9 +7,18 @@ const client = new Client({
   authStrategy: new LocalAuth()
 });
 
+//Appointment details - Index
+//center - 12 
+// category - 1
+// Sub category { 
+  //Business - 1
+  // Tourist - 36
+//}
+
+
 //Country and login Details 
-const COUNTRY = require(`./models/countries`);
-const LOGIN_DETAILS = require(`./models/login-details`);
+const COUNTRY = require(`../models/countries`);
+const LOGIN_DETAILS = require(`../models/login-details`);
 let visaCategory = '';
 
 (async () => {
@@ -37,10 +46,10 @@ let visaCategory = '';
   page.setDefaultNavigationTimeout(1000000000); 
 
   // Login site 
-  await page.goto(COUNTRY.GERMANY.VFS_URL);
+  await page.goto(COUNTRY.FRANCE.VFS_URL);
 
   // -----------Creating browser and page ended ------------
-
+  await page.waitForNavigation({waitUntil :'networkidle2'});
   await page.waitForTimeout(3000)
 
   // -----------Logging in----------------
@@ -95,7 +104,7 @@ let visaCategory = '';
     await page.waitForTimeout(1000);
     await page.waitForSelector(`#mat-select-2-panel`)
     const options2 = await page.$$(`.mat-option`)
-    await options2[6].evaluate((b) => b.click());
+    await options2[0].evaluate((b) => b.click());
 
 
     await page.waitForTimeout(3000);
@@ -106,7 +115,7 @@ let visaCategory = '';
     await page.waitForTimeout(1000);
     await page.waitForSelector(`#mat-select-4-panel`)
     const options3 = await page.$$(`.mat-option`)
-    await options3[8].evaluate((b) => b.click());
+    await options3[1].evaluate((b) => b.click());
     visaCategory = 'Business';
     // --------------Dropdown selection ended ------------
 
@@ -122,7 +131,7 @@ let visaCategory = '';
 
 
     // --------- sending whatsapp message --------
-    const text = `${COUNTRY.GERMANY.VISA_COUNTRY} - ${visaCategory}\n${earliestDate}`;
+    const text = `${COUNTRY.FRANCE.VISA_COUNTRY} - ${visaCategory}\n${earliestDate}`;
     const chatId = LOGIN_DETAILS.WHATSAPP_RECIPIENT.substring(1) + "@c.us";
     client.sendMessage(chatId, text);
     // ---------- whatsapp message ended --------
@@ -153,10 +162,10 @@ let visaCategory = '';
         await page.waitForSelector(`#mat-select-4-panel`)
         const options3 = await page.$$(`.mat-option`)
         if(visaCategory == 'Business') { 
-          await options3[5].evaluate((b) => b.click());
+          await options3[36].evaluate((b) => b.click());
           visaCategory = 'Tourist';
         } else { 
-          await options3[8].evaluate((b) => b.click());
+          await options3[1].evaluate((b) => b.click());
           visaCategory = 'Business';
         }
 
@@ -171,7 +180,7 @@ let visaCategory = '';
 
 
         // --------- sending whatsapp message --------
-        const text = `${COUNTRY.GERMANY.VISA_COUNTRY} - ${visaCategory}\n${earliestDate}`;
+        const text = `${COUNTRY.FRANCE.VISA_COUNTRY} - ${visaCategory}\n${earliestDate}`;
         const chatId = LOGIN_DETAILS.WHATSAPP_RECIPIENT.substring(1) + "@c.us";
         await client.sendMessage(chatId, text);
         // ---------- whatsapp message ended --------
