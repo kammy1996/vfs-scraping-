@@ -29,7 +29,7 @@ let visaCategory = '';
 
   // -----------Creating browser and page ------------
   const browser = await puppeteer.launch({
-    headless: false
+    headless: LOGIN_DETAILS.HEADLESS
   });
 
   // Create a page
@@ -123,8 +123,7 @@ let visaCategory = '';
 
     // --------- sending whatsapp message --------
     const text = `${COUNTRY.GERMANY.VISA_COUNTRY} - ${visaCategory}\n${earliestDate}`;
-    const chatId = LOGIN_DETAILS.WHATSAPP_RECIPIENT.substring(1) + "@c.us";
-    client.sendMessage(chatId, text);
+    await client.sendMessage(LOGIN_DETAILS.WHATSAPP_GROUP_CHATID, text);
     // ---------- whatsapp message ended --------
 
 
@@ -172,8 +171,7 @@ let visaCategory = '';
 
         // --------- sending whatsapp message --------
         const text = `${COUNTRY.GERMANY.VISA_COUNTRY} - ${visaCategory}\n${earliestDate}`;
-        const chatId = LOGIN_DETAILS.WHATSAPP_RECIPIENT.substring(1) + "@c.us";
-        await client.sendMessage(chatId, text);
+        await client.sendMessage(LOGIN_DETAILS.WHATSAPP_GROUP_CHATID, text);
         // ---------- whatsapp message ended --------
     }, LOGIN_DETAILS.FETCHING_INTERVAL);
 
