@@ -97,7 +97,7 @@ let visaCategory = '';
     const options = await page.$$(`.mat-option`)
     await options[9].evaluate((b) => b.click());
     
-    await page.waitForTimeout(5000);
+    await page.waitForTimeout(3000);
 
     //------ CATEGORY AUTO SELECTED IN CASE OF SWISS VISA --- //
     //Selecting appointment category 
@@ -125,7 +125,6 @@ let visaCategory = '';
     // ------------- Getting earliest date ----------
     await page.waitForSelector(`.alert`);
     const alert = await page.$$(`.alert`)
-    if(!alert || alert?.length < 1) return;
     const earliestDate = await alert[0].evaluate((e) => e.innerText);
     console.log("🚀 ~ file: index.js ~ line 83 ~ earliestDate", earliestDate)
     // ------------- earliest date ended ----------
@@ -139,25 +138,22 @@ let visaCategory = '';
 
 
     //------------Checking session expiry dialog ------------
-    async function clickOnSessionActive() { 
-       const sessionDialog = await page.$$(`.mat-modal-delete-document`);
-        if(sessionDialog && sessionDialog.length > 0) { 
-          console.log(`session expiry dialog found`,)
-          const dialogButtons = await page.$$(`.mat-dialog-actions button`)
-          await dialogButtons[1].evaluate(b => b.click());
-        } else { 
-          return;
-        }
-
-      setTimeout(clickOnSessionActive, LOGIN_DETAILS.SESSION_DIALOG_CHECK_TIME);
-    }
-  
-    clickOnSessionActive();
+    setInterval(async () => { 
+      const sessionDialog = await page.$$(`.mat-modal-delete-document`);
+      if(sessionDialog && sessionDialog.length > 0) { 
+        console.log(`session expiry dialog found`)
+        const dialogButtons = await page.$$(`.mat-dialog-actions button`)
+        await dialogButtons[1].evaluate(b => b.click());
+      } else { 
+        return;
+      }
+    },LOGIN_DETAILS.SESSION_DIALOG_CHECK_TIME)
     //-------------Session expiry dialog ended---------------
 
 
+
     //-------------- Changing dropdown sub-category to get latest dates ------------
-      async function callFunctionEveryFiveMinutes() {
+    setInterval(async () => {
         // Toggling selection between sub-category tourist and business.
         await page.waitForSelector(`form .mat-form-field`);
         const selects = await page.$$(`.mat-select`)
@@ -188,23 +184,11 @@ let visaCategory = '';
         const chatId = LOGIN_DETAILS.WHATSAPP_RECIPIENT.substring(1) + "@c.us";
         await client.sendMessage(chatId, text);
         // ---------- whatsapp message ended --------
-
-        // call the function again in 10 minutes
-        setTimeout(callFunctionEveryFiveMinutes, LOGIN_DETAILS.FETCHING_INTERVAL);
-      }
-
-      
-      setTimeout(() => {
-        console.log(`executing first time only`)
-        callFunctionEveryFiveMinutes();
-      },60000);      
+    }, LOGIN_DETAILS.FETCHING_INTERVAL);
 
     //-------------------Changing dates ended-------------------
 
 })();
-
-//TODO: There is an issue of session timed out but still the dates are running 
-
 
 
    
